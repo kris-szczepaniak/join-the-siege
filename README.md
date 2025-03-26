@@ -136,6 +136,8 @@ I am well aware of the areas in which the approach could be improved.
 
 ### Model Fit
 A fairly limited document type set, cause the model to over-fit. On the other hand, dataset consisting of documents that need to comply with certain standards might be destined for over-fitting. 
+That's why I am not including any training model metrics, as no matter the training params, the model overfits with the same stats. 
+Nevertheless, it shouldn't be that big of an issue for now, given the fact that the documents that we want to classify always consist of the same sections, as previously mentioned.
 
 ### Training Limitations
 * reads only english language,
