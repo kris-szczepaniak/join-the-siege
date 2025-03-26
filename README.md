@@ -11,7 +11,7 @@
 1. Clone the repo
     ```
     git clone <repository_url>
-    cd heron_classifier
+    cd join-the-siege
     ```
 
 2. Install dependencies
