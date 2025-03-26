@@ -1,29 +1,36 @@
 from flask import Flask, request, jsonify
 
-from src.classifier import classify_file
+from src.model.model_preloader import load_model_and_tokenizer
+
+from src.utils.classifier import classify_file
+from src.utils.error_interceptor import error_interceptor
+from src.utils.text_extractor import extract_text
+from src.utils.validators import validate_model_state, get_and_validate_uploaded_file, validate_file_text
+
 app = Flask(__name__)
 
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg'}
+pretrained_model, tokenizer, device = load_model_and_tokenizer()
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/classify_file', methods=['POST'])
+@app.route('/classify-file', methods=['POST'])
+@error_interceptor
 def classify_file_route():
+    """
+    Classifies a file uploaded via POST request.
 
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part in the request"}), 400
+    :return: JSON response with classification results or error message.
+    """
+    # could be done with pydantic as well
+    validate_model_state(pretrained_model, tokenizer, device)
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    file = get_and_validate_uploaded_file(request)
 
-    if not allowed_file(file.filename):
-        return jsonify({"error": f"File type not allowed"}), 400
+    file_text = extract_text(file)
+    validate_file_text(file_text)
+    
+    file_class, confidence = classify_file(file_text, pretrained_model, tokenizer=tokenizer, device=device)
+    
+    if all([file_text, file_class, confidence]):
+        return jsonify({"file_class": file_class, "confidence": confidence, "file_text": file_text}), 200
+    
+    return jsonify({"error": "Unable to classify document."}), 400
 
-    file_class = classify_file(file)
-    return jsonify({"file_class": file_class}), 200
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
