@@ -8,8 +8,6 @@ from src.utils.text_extractor import (
     extract_text,
 )
 
-# ─── extract_file_extension ───────────────────────────────────────────────────────
-
 @pytest.mark.parametrize("filename,expected", [
     ("foo.txt", "txt"),
     ("BAR.PDF", "pdf"),
@@ -17,8 +15,6 @@ from src.utils.text_extractor import (
 ])
 def test_extract_file_extension(filename, expected):
     assert extract_file_extension(filename) == expected
-
-# ─── extract_text_from_txt ───────────────────────────────────────────────────────
 
 def test_extract_text_from_txt_valid_utf8():
     data = "Hello world\nLine 2".encode("utf-8")
@@ -30,8 +26,6 @@ def test_extract_text_from_txt_invalid_utf8(capfd):
     captured = capfd.readouterr()
     assert result == ""
     assert "File encoding is not valid UTF-8." in captured.out
-
-# ─── extract_text (TXT path) ─────────────────────────────────────────────────────
 
 def make_filestorage(content: bytes, filename: str, mimetype: str="text/plain"):
     stream = BytesIO(content)
